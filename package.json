@@ -1,0 +1,26 @@
+{
+  "name": "epipolar-geometry-3d-reconstruction",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx ts-node-dev --ignore-watch node_modules src/index.ts",
+    "start-ts": "npx ts-node src/index.ts",
+    "build": "npx tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ml-matrix": "^6.5.0",
+    "opencv4nodejs": "^5.6.0",
+    "svd-js": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.14",
+    "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.50",
+    "typescript": "^3.9.6"
+  }
+}
