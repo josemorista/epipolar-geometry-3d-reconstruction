@@ -69,7 +69,7 @@ const ransac = (samples: Array<IMatchPoint>, s: number, minError: number, k: num
 const img1 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1, img2, 100);
+const matches = siftMatches(img1, img2, 200);
 
 const F = ransac(matches, 8, 0.01, 10000, 0.95);
 
@@ -87,9 +87,9 @@ lines.forEach(r => {
 });
 
 // Draw opencv epipolar lines in RED
-linesOpenCv.forEach(r => {
+/*linesOpenCv.forEach(r => {
   img2.drawLine(new cv.Point2(0, -r.z / r.y), new cv.Point2(img2.cols, -(r.z + r.x * img2.cols) / r.y), new cv.Vec3(0, 0, 255), 1);
-});
+});*/
 
 cv.imshowWait('result', img2);
 
