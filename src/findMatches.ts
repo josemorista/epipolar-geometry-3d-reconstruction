@@ -45,7 +45,7 @@ const matchFeatures = (
     keyPoints2,
     bestMatches
   );
-  //cv.imshowWait('Matched img', matchedImg);
+  cv.imshowWait('Matched img', matchedImg);
 
   // return matchedPoints for both images
   return matchedPoints;

@@ -7,20 +7,24 @@
     "dev": "npx ts-node-dev --ignore-watch node_modules src/index.ts",
     "start-ts": "npx ts-node src/index.ts",
     "build": "npx tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "commit": "git add * && git-cz && git push -u origin master"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "ml-matrix": "^6.5.0",
-    "opencv4nodejs": "^5.6.0",
-    "svd-js": "^1.1.0"
+    "opencv4nodejs": "^5.6.0"
   },
   "devDependencies": {
     "@types/node": "^14.0.14",
     "ts-node": "^8.10.2",
     "ts-node-dev": "^1.0.0-pre.50",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.6",
+    "commitizen": "^4.1.2",
+    "cz-conventional-changelog": "^3.2.0",
+    "eslint": "^6.6.0",
+    "git-cz": "^4.6.2"
   }
 }

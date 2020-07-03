@@ -2,7 +2,6 @@ import path from 'path';
 import { findMatches } from './findMatches';
 import { Matrix, SingularValueDecomposition } from 'ml-matrix';
 import * as cv from 'opencv4nodejs';
-import { SVD } from 'svd-js';
 
 const matches = findMatches(path.resolve('.', 'datasets', 'temple', 'temple0001.png'), path.resolve('.', 'datasets', 'temple', 'temple0003.png'));
 
@@ -16,11 +15,11 @@ const matrix2Array = (m: Matrix) => {
 
 const restrictSingularity = (M: Matrix) => {
   const svdM = new SingularValueDecomposition(M);
-  console.log(svdM.rank);
   const U = new Matrix(svdM.leftSingularVectors);
   let S = new Matrix(svdM.diagonalMatrix);
-  const V = new Matrix(svdM.rightSingularVectors);
-  return U.multiply(S).multiply(V);
+  S.set(2, 2, 0);
+  const V = new Matrix(svdM.rightSingularVectors.transpose());
+  return U.mmul(S).mmul(V);
 };
 
 let A: Array<Array<number>> | Matrix = [];
@@ -50,27 +49,31 @@ for (let i = 0; i < 3; i++) {
     F[i][j] = solutionArray[i * 3 + j];
   }
 }
+
 F = new Matrix(F);
 
-//F = restrictSingularity(F);
+F = restrictSingularity(F);
+
+console.log(F);
 
 const cvMat = new cv.Mat(matrix2Array(F), cv.CV_32F);
-const { F: cv2Mat } = cv.findFundamentalMat(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.orbMatchedPoints.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.LMEDS);
+const { F: cv2Mat } = cv.findFundamentalMat(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.orbMatchedPoints.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);
 
 console.log(cvMat.getDataAsArray());
 
-const img1 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
-const lines = cv.computeCorrespondEpilines(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), 2, cvMat);
-const linesOpenCv = cv.computeCorrespondEpilines(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), 2, cv2Mat);
+const img2 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
+
+const lines = cv.computeCorrespondEpilines(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), 1, cvMat);
+const linesOpenCv = cv.computeCorrespondEpilines(matches.orbMatchedPoints.map(el => new cv.Point2(el.p1.x, el.p1.y)), 1, cv2Mat);
 
 
 lines.forEach(r => {
-  img1.drawLine(new cv.Point2(0, -r.z / r.y), new cv.Point2(img1.cols, -(r.z + r.x * img1.cols) / r.y), new cv.Vec3(255, 0, 0), 1);
+  img2.drawLine(new cv.Point2(0, -r.z / r.y), new cv.Point2(img2.cols, -(r.z + r.x * img2.cols) / r.y), new cv.Vec3(255, 0, 0), 1);
 });
 
 linesOpenCv.forEach(r => {
-  img1.drawLine(new cv.Point2(0, -r.z / r.y), new cv.Point2(img1.cols, -(r.z + r.x * img1.cols) / r.y), new cv.Vec3(0, 0, 255), 1);
+  img2.drawLine(new cv.Point2(0, -r.z / r.y), new cv.Point2(img2.cols, -(r.z + r.x * img2.cols) / r.y), new cv.Vec3(0, 0, 255), 1);
 });
 
 
-cv.imshowWait('result', img1);
+cv.imshowWait('result', img2);
