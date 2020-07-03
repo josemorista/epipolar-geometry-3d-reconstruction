@@ -1,15 +1,13 @@
 import * as cv from 'opencv4nodejs';
+import { cvMat, IMatchPoint } from '../@types';
 
-interface IMatchPoint {
-  p1: { x: number, y: number; };
-  p2: { x: number, y: number; };
-}
+const drawMatches = true;
 
 const matchFeatures = (
-  img1: cv.Mat,
-  img2: cv.Mat,
+  img1: cvMat,
+  img2: cvMat,
   detector: cv.FeatureDetector,
-  matchFunc: (descs1: cv.Mat, descs2: cv.Mat) => cv.DescriptorMatch[],
+  matchFunc: (descs1: cvMat, descs2: cvMat) => cv.DescriptorMatch[],
   bestN = 8
 ) => {
   // detect keypoints
@@ -38,42 +36,38 @@ const matchFeatures = (
   });
 
   // draw matches to debug
-  const matchedImg = cv.drawMatches(
-    img1,
-    img2,
-    keyPoints1,
-    keyPoints2,
-    bestMatches
-  );
-  cv.imshowWait('Matched img', matchedImg);
+  if (drawMatches) {
+    const matchedImg = cv.drawMatches(
+      img1,
+      img2,
+      keyPoints1,
+      keyPoints2,
+      bestMatches
+    );
+    cv.imshowWait('Matched img', matchedImg);
+  }
 
   // return matchedPoints for both images
   return matchedPoints;
 
 };
 
-export const findMatches = (img1Path: string, img2Path: string) => {
-
-  console.log('reading imgs');
-  const img1 = cv.imread(img1Path);
-  const img2 = cv.imread(img2Path);
-
-
-  console.log('processing sift...');
-  const siftMatchedPoints = matchFeatures(
+export const siftMatches = (img1: cvMat, img2: cvMat, numberOfMatches = 40) => {
+  return matchFeatures(
     img1,
     img2,
     new cv.SIFTDetector({ nFeatures: 2000 }),
-    cv.matchFlannBased
+    cv.matchFlannBased,
+    numberOfMatches
   );
+};
 
-  console.log('processing ORB...');
-  const orbMatchedPoints = matchFeatures(
+export const orbMatches = (img1: cvMat, img2: cvMat, numberOfMatches = 40) => {
+  return matchFeatures(
     img1,
     img2,
     new cv.ORBDetector(),
-    cv.matchBruteForceHamming
+    cv.matchBruteForceHamming,
+    numberOfMatches
   );
-
-  return { siftMatchedPoints, orbMatchedPoints };
 };

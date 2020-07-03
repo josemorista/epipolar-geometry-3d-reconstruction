@@ -6,7 +6,7 @@
       "es6"
     ],
     "allowJs": true,
-    "strict": false,
+    "strict": true,
     "outDir": "./dist",
     "typeRoots": [
       "src/@types"
