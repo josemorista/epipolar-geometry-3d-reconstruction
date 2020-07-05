@@ -1,6 +1,6 @@
 import path from 'path';
 import { siftMatches } from './lib/findMatches';
-import { Matrix } from 'ml-matrix';
+import { Matrix, SVD } from 'ml-matrix';
 import * as cv from 'opencv4nodejs';
 import { eightPointAlgorithm } from './lib/eightPointAlgorithm';
 import { ndMat, IMatchPoint, cvMat } from './@types';
@@ -8,6 +8,11 @@ import { matrix2ndMat } from './lib/utils';
 import { ransac } from './lib/ransac';
 import { getRandomInt } from './lib/utils';
 
+const calculateEpipole = (F: ndMat) => {
+  const Fmat = (new Matrix(F)).transpose();
+  const svdF = new SVD(Fmat);
+  return svdF.rightSingularVectors.getColumn(2);
+};
 
 const drawLines = (lines: Array<cv.Vec3>, img1: cvMat, img2: cvMat, pts1: Array<cv.Point2>, pts2: Array<cv.Point2>) => {
   const c = img1.cols;
@@ -38,12 +43,12 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
 const img1 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1, img2, 10000);
+const matches = siftMatches(img1, img2, 100);
 
-const F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.9);
+let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.9);
 
-const FcvMat = new cv.Mat(F, cv.CV_32F);
-// const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);
+// const FcvMat = new cv.Mat(F, cv.CV_32F);
+const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_8POINT);
 
 const pts1 = matches.map(el => new cv.Point2(el.p1.x, el.p1.y));
 const pts2 = matches.map(el => new cv.Point2(el.p2.x, el.p2.y));

@@ -18,7 +18,7 @@ const SSDError = ([b1, g1, r1]: any, [b2, g2, r2]: any) => {
   return exp2(r2 - r1) + exp2(g2 - g1) + exp2(b2 - b1);
 };
 
-const getPixelWindow = (m: ndMat, [row, col]: Array<number>, windowSize = 3) => {
+const getPixelWindow = (m: ndMat, [row, col]: Array<number>, windowSize = 15) => {
   let window = [] as ndMat;
   let wi = 0, wj = 0;
 
@@ -82,6 +82,7 @@ const linearTransform = (x: number, min: number, max: number, a: number, b: numb
 };
 
 let max = Number.MIN_SAFE_INTEGER, min = Number.MAX_SAFE_INTEGER;
+const maxDisparity = 70;
 
 for (let i = 0; i < img1.length; i++) {
   for (let j = 0; j < img1[i].length; j++) {
@@ -89,13 +90,15 @@ for (let i = 0; i < img1.length; i++) {
     if (w) {
       const matchPosition = searchMatchInEpiline(img2, w, i);
       let disp = Math.abs(j - matchPosition[1]);
-      if (disp < min) {
-        min = disp;
+      if (disp < maxDisparity) {
+        if (disp < min) {
+          min = disp;
+        }
+        if (disp > max) {
+          max = disp;
+        }
+        disparity[i][j] = disp;
       }
-      if (disp > max) {
-        max = disp;
-      }
-      disparity[i][j] = disp;
     }
   }
   console.log(i);
