@@ -95,7 +95,7 @@ export const searchMatchInEpiline = (img: ndMat, w: ndMat, row: number, errorFun
     error: Number.MAX_SAFE_INTEGER
   };
   for (let j = 0; j < img[row].length; j++) {
-    const w2 = getPixelWindow(img, [row, j]);
+    const w2 = getPixelWindow(img, [row, j], w.length);
     if (w2) {
       const localError = errorsFunctions[errorFunction](w, w2);
       if (localError < bestResult.error) {

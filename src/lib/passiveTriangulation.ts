@@ -1,9 +1,6 @@
 import { Matrix, SingularValueDecomposition } from 'ml-matrix';
 import { ndMat, IPoint } from '../@types';
 
-export const calculateProjectionMatrix = (K: ndMat, R: ndMat, t: Array<number>) => {
-  return (new Matrix(K)).mmul(new Matrix(R).mmul(new Matrix([[t[0]], [t[1]], [t[2]]])));
-};
 
 export const passiveTriangulation = (x1: IPoint, x2: IPoint, P1: ndMat, P2: ndMat): IPoint => {
   const [x, y] = x1;

@@ -12,7 +12,6 @@ const img2 = img2cvMat.getDataAsArray();
 
 let disparity = matrix2ndMat(Matrix.zeros(img1.length, img1[0].length));
 
-
 let max = Number.MIN_SAFE_INTEGER, min = Number.MAX_SAFE_INTEGER;
 const maxDisparity = 64;
 
@@ -22,9 +21,9 @@ const linearTransform = (x: number, min: number, max: number, a: number, b: numb
 
 for (let i = 0; i < img1.length; i++) {
   for (let j = 0; j < img1[i].length; j++) {
-    const w = getPixelWindow(img1, [i, j]);
+    const w = getPixelWindow(img1, [i, j], 1);
     if (w) {
-      const matchPosition = searchMatchInEpiline(img2, w, i, 'CORRELATION');
+      const matchPosition = searchMatchInEpiline(img2, w, i, 'SSD');
       let disp = Math.abs(j - matchPosition[1]);
       if (disp < maxDisparity) {
         if (disp < min) {
@@ -42,7 +41,6 @@ for (let i = 0; i < img1.length; i++) {
 
 
 let disparityRGB = [] as Array<Array<Array<number>>>;
-console.log(min, max);
 
 for (let i = 0; i < disparity.length; i++) {
   disparityRGB.push([]);

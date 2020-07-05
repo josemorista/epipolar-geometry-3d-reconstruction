@@ -21,8 +21,8 @@ const drawLines = (lines: Array<cv.Vec3>, img1: cvMat, img2: cvMat, pts1: Array<
     let [x0, y0] = [0, -lines[i].z / lines[i].y].map(el => Math.round(el));
     let [x1, y1] = [c, -(lines[i].z + lines[i].x * c) / lines[i].y].map(el => Math.round(el));
     img1.drawLine(new cv.Point2(x0, y0), new cv.Point2(x1, y1), color, 1);
-    img1.drawCircle(new cv.Point2(pts1[i].x, pts2[i].y), 5, color, -1);
-    img2.drawCircle(new cv.Point2(pts2[i].x, pts2[i].y), 5, color, -1);
+    //img1.drawCircle(new cv.Point2(pts1[i].x, pts2[i].y), 5, color, -1);
+    //img2.drawCircle(new cv.Point2(pts2[i].x, pts2[i].y), 5, color, -1);
   }
 };
 
@@ -45,7 +45,7 @@ const img2 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png')
 
 const matches = siftMatches(img1, img2, 1000);
 
-let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.001, 0.95, 10);
+let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.5, 0.95, 10);
 
 const FcvMat = new cv.Mat(F, cv.CV_32F);
 // const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);
