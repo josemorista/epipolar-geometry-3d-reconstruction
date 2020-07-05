@@ -1,13 +1,10 @@
 import { Mat } from 'opencv4nodejs';
 
-export interface I2dPoint {
-  x: number;
-  y: number;
-}
+export type IPoint = Array<number>;
 
 export interface IMatchPoint {
-  p1: I2dPoint;
-  p2: I2dPoint;
+  p1: IPoint;
+  p2: IPoint;
 }
 
 type cvMat = Mat;

@@ -30,8 +30,8 @@ const matchFeatures = (
   let matchedPoints: Array<IMatchPoint> = [];
   bestMatches.forEach(match => {
     matchedPoints.push({
-      p1: { x: keyPoints1[match.queryIdx].pt.x, y: keyPoints1[match.queryIdx].pt.y },
-      p2: { x: keyPoints2[match.trainIdx].pt.x, y: keyPoints2[match.trainIdx].pt.y }
+      p1: [keyPoints1[match.queryIdx].pt.x, keyPoints1[match.queryIdx].pt.y],
+      p2: [keyPoints2[match.trainIdx].pt.x, keyPoints2[match.trainIdx].pt.y]
     });
   });
 

@@ -1,10 +1,10 @@
-import { Matrix, SingularValueDecomposition, SVD } from 'ml-matrix';
+import { Matrix, SingularValueDecomposition } from 'ml-matrix';
 import { IMatchPoint, ndMat } from '../@types';
 import { matrix2ndMat } from './utils';
 
 export const eightPointAlgorithm = (matches: Array<IMatchPoint>) => {
   let EquationsMatrix: ndMat = [];
-  matches.forEach(({ p1: { x, y }, p2: { x: xl, y: yl } }, index) => {
+  matches.forEach(({ p1: [x, y], p2: [xl, yl] }, index) => {
     EquationsMatrix[index] = [
       x * xl,
       x * yl,
@@ -21,7 +21,7 @@ export const eightPointAlgorithm = (matches: Array<IMatchPoint>) => {
   // SVD to solve equations system
   const svdEquations = new SingularValueDecomposition(new Matrix(EquationsMatrix));
   // Get the right singular vectors to create F matrix
-  const solutionArray = svdEquations.rightSingularVectors.getColumn(8);
+  const solutionArray = svdEquations.rightSingularVectors.getColumn(svdEquations.rightSingularVectors.columns - 1);
   let F: ndMat | Matrix = [];
   // Parse solution array to a 3x3 matrix
   for (let i = 0; i < 3; i++) {

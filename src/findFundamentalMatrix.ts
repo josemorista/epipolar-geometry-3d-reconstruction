@@ -8,7 +8,7 @@ import { matrix2ndMat } from './lib/utils';
 import { ransac } from './lib/ransac';
 import { getRandomInt } from './lib/utils';
 
-const calculateEpipole = (F: ndMat) => {
+const calculateRightEpipole = (F: ndMat) => {
   const Fmat = (new Matrix(F)).transpose();
   const svdF = new SVD(Fmat);
   return svdF.rightSingularVectors.getColumn(2);
@@ -27,9 +27,9 @@ const drawLines = (lines: Array<cv.Vec3>, img1: cvMat, img2: cvMat, pts1: Array<
 };
 
 const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
-  const x = sample.p1, xl = sample.p2;
-  const xTmp = new Matrix([[x.x], [x.y], [1]]);
-  let xlTmp = new Matrix([[xl.x, xl.y, 1]]);
+  const [x, y] = sample.p1, [xl, yl] = sample.p2;
+  const xTmp = new Matrix([[x], [y], [1]]);
+  let xlTmp = new Matrix([[xl, yl, 1]]);
   let M = xlTmp.mmul(new Matrix(F)).mmul(xTmp);
   let m = matrix2ndMat(M), sum = 0;
   for (let i = 0; i < m.length; i++) {
@@ -43,15 +43,15 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
 const img1 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2 = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1, img2, 100);
+const matches = siftMatches(img1, img2, 1000);
 
-let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.9);
+let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.001, 0.95, 10);
 
-// const FcvMat = new cv.Mat(F, cv.CV_32F);
-const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_8POINT);
+const FcvMat = new cv.Mat(F, cv.CV_32F);
+// const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);
 
-const pts1 = matches.map(el => new cv.Point2(el.p1.x, el.p1.y));
-const pts2 = matches.map(el => new cv.Point2(el.p2.x, el.p2.y));
+const pts1 = matches.map(el => new cv.Point2(el.p1[0], el.p1[1]));
+const pts2 = matches.map(el => new cv.Point2(el.p2[0], el.p2[1]));
 
 const linesOnLeft = cv.computeCorrespondEpilines(pts2, 2, FcvMat);
 const linesOnRight = cv.computeCorrespondEpilines(pts1, 1, FcvMat);
