@@ -1,7 +1,6 @@
 import { Matrix, SingularValueDecomposition, SVD } from 'ml-matrix';
-import * as cv from 'opencv4nodejs';
 import { IMatchPoint, ndMat } from '../@types';
-import { matrix2ndMat } from './common';
+import { matrix2ndMat } from './utils';
 
 export const eightPointAlgorithm = (matches: Array<IMatchPoint>) => {
   let EquationsMatrix: ndMat = [];
