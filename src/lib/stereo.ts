@@ -1,4 +1,6 @@
-import { ndMat } from "../@types";
+import { ndMat, cvMat } from "../@types";
+import Matrix from "ml-matrix";
+import { matrix2ndMat } from "./utils";
 
 const exp2 = (x: number) => Math.pow(x, 2);
 
@@ -45,7 +47,6 @@ const compareWindowsBySSd = (w1: ndMat, w2: ndMat) => {
 };
 
 
-
 const calculateWindowCorrelation = (w1: ndMat): number => {
   let averages = [0, 0, 0];
   for (let i = 0; i < w1.length; i++) {
@@ -56,7 +57,6 @@ const calculateWindowCorrelation = (w1: ndMat): number => {
       averages[2] += v[2];
     }
   }
-
 
   let variances = [0, 0, 0];
   for (let i = 0; i < w1.length; i++) {
@@ -107,3 +107,46 @@ export const searchMatchInEpiline = (img: ndMat, w: ndMat, row: number, errorFun
   return bestResult.position;
 };
 
+export const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: number) => {
+  const img1 = img1cvMat.getDataAsArray();
+  const img2 = img2cvMat.getDataAsArray();
+  let disparity = matrix2ndMat(Matrix.zeros(img1.length, img1[0].length));
+  let max = Number.MIN_SAFE_INTEGER, min = Number.MAX_SAFE_INTEGER;
+
+  const linearTransform = (x: number, min: number, max: number, a: number, b: number) => {
+    return (b - a) * ((x - min) / (max - min)) + a;
+  };
+
+  for (let i = 0; i < img1.length; i++) {
+    for (let j = 0; j < img1[i].length; j++) {
+      const w = getPixelWindow(img1, [i, j], 1);
+      if (w) {
+        const matchPosition = searchMatchInEpiline(img2, w, i, 'SSD');
+        let disp = Math.abs(j - matchPosition[1]);
+        if (disp < maxDisparity) {
+          if (disp < min) {
+            min = disp;
+          }
+          if (disp > max) {
+            max = disp;
+          }
+          disparity[i][j] = disp;
+        }
+      }
+    }
+    console.log(i);
+  }
+
+
+  let disparityRGB = [] as Array<Array<Array<number>>>;
+
+  for (let i = 0; i < disparity.length; i++) {
+    disparityRGB.push([]);
+    for (let j = 0; j < disparity[i].length; j++) {
+      const color = Math.round(linearTransform(disparity[i][j], min, max, 1, 255));
+      disparityRGB[i][j] = [color, color, color];
+    }
+  }
+
+  return disparityRGB;
+};

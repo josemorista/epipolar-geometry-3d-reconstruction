@@ -9,7 +9,6 @@ import { passiveTriangulation } from './lib/passiveTriangulation';
 
 const fileLines = fs.readFileSync(path.resolve('.', 'datasets', 'temple', 'temple_par.txt'), 'utf-8').split('\n');
 
-
 const readCameraProjectionMatrixFromFile = (filename: string) => {
   let K = [] as ndMat;
   let R = [] as ndMat;
@@ -52,9 +51,9 @@ const P2 = readCameraProjectionMatrixFromFile('temple0002.png');
 let vertex = [];
 const maxDisparity = 255;
 
-for (let i = 0; i < img1.length; i++) {
+for (let i = 0; i < 10; i++) {
   for (let j = 0; j < img1[i].length; j++) {
-    const w = getPixelWindow(img1, [i, j], 5);
+    const w = getPixelWindow(img1, [i, j], 3);
     if (w) {
       const matchPosition = searchMatchInEpiline(img2, w, i, 'SSD');
       let disp = Math.abs(j - matchPosition[1]);

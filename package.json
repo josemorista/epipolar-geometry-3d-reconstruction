@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx ts-node-dev --ignore-watch node_modules src/index.ts",
-    "disparity": "npx ts-node src/findStereoDisparityMap.ts",
-    "fundamental-matrix": "npx ts-node src/findFundamentalMatrix.ts",
+    "find-stereo-disparity-map": "npx ts-node src/findStereoDisparityMap.ts",
+    "find-fundamental-matrix": "npx ts-node src/findFundamentalMatrix.ts",
+    "find-stereo-multiview": "npx ts-node src/multiViewStereo.ts",
     "build": "npx tsc",
-    "start": "node dist/index.js",
     "commit": "git add * && git-cz && git push -u origin master"
   },
   "keywords": [],
