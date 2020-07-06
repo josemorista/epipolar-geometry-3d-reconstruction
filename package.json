@@ -7,7 +7,6 @@
     "dev": "npx ts-node-dev --ignore-watch node_modules src/index.ts",
     "find-stereo-disparity-map": "npx ts-node src/findStereoDisparityMap.ts",
     "find-fundamental-matrix": "npx ts-node src/findFundamentalMatrix.ts",
-    "find-stereo-multiview": "npx ts-node src/multiViewStereo.ts",
     "build": "npx tsc",
     "commit": "git add * && git-cz && git push -u origin master"
   },

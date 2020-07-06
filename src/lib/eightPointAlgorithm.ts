@@ -1,5 +1,5 @@
 import { Matrix, SingularValueDecomposition } from 'ml-matrix';
-import { IMatchPoint, ndMat } from '../@types';
+import { IMatchPoint, ndMat, IPoint } from '../@types';
 import { matrix2ndMat } from './utils';
 
 export const eightPointAlgorithm = (matches: Array<IMatchPoint>) => {
