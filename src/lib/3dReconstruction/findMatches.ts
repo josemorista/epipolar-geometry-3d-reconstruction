@@ -1,5 +1,5 @@
 import * as cv from 'opencv4nodejs';
-import { cvMat, IMatchPoint } from '../@types';
+import { cvMat, IMatchPoint } from '../../@types';
 
 const drawMatches = false;
 

@@ -1,7 +1,7 @@
-import { ndMat, cvMat } from "../@types";
+import { ndMat, cvMat } from "../../../@types";
 import Matrix from "ml-matrix";
-import { matrix2ndMat } from "./utils";
-import { compareWindowsBySSd, getPixelWindow, compareWindowsByCorrelation } from "./common";
+import { matrix2ndMat } from "../../utils";
+import { compareWindowsBySSd, getPixelWindow, compareWindowsByCorrelation } from "../epilines";
 
 export const searchMatchInStereoEpiline = (img: ndMat, w: ndMat, row: number, errorFunction: 'SSD' | 'CORRELATION' = 'SSD') => {
   const errorsFunctions = {
@@ -25,7 +25,7 @@ export const searchMatchInStereoEpiline = (img: ndMat, w: ndMat, row: number, er
   return bestResult.position;
 };
 
-export const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: number) => {
+const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: number) => {
   const img1 = img1cvMat.getDataAsArray();
   const img2 = img2cvMat.getDataAsArray();
   let disparity = matrix2ndMat(Matrix.zeros(img1.length, img1[0].length));
@@ -67,4 +67,9 @@ export const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparit
   }
 
   return disparityRGB;
+};
+
+
+export default {
+  findDisparityMap
 };

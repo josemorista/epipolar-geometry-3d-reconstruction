@@ -1,4 +1,5 @@
-import { ndMat } from "../@types";
+import { ndMat, IPoint } from "../../@types";
+import Matrix, { SingularValueDecomposition } from "ml-matrix";
 
 const exp2 = (x: number) => Math.pow(x, 2);
 
@@ -79,6 +80,49 @@ export const calculateWindowCorrelation = (w1: ndMat): number => {
 
 };
 
+
 export const compareWindowsByCorrelation = (w1: ndMat, w2: ndMat) => {
   return Math.abs(calculateWindowCorrelation(w1) - calculateWindowCorrelation(w2));
+};
+
+export const computeEpilines = (pts: Array<IPoint>, F: ndMat, transpose: boolean = false) => {
+  let Fmat = new Matrix(F);
+  if (transpose) {
+    Fmat = Fmat.transpose();
+  }
+  let lines: Array<IPoint> = [];
+  pts.forEach(p => {
+    lines.push(Fmat.mmul(new Matrix([[...p, 1]]).transpose()).getColumn(0));
+  });
+  return lines;
+};
+
+export const calculateRightEpipole = (F: ndMat) => {
+  const Fmat = (new Matrix(F)).transpose();
+  const svdF = new SingularValueDecomposition(Fmat);
+  return svdF.rightSingularVectors.getColumn(svdF.rightSingularVectors.columns - 1);
+};
+
+
+export const searchMatchInEpiline = (img: ndMat, w: ndMat, line: IPoint, errorFunction: 'SSD' | 'CORRELATION' = 'SSD') => {
+  const errorsFunctions = {
+    'SSD': compareWindowsBySSd,
+    'CORRELATION': compareWindowsByCorrelation
+  };
+  let bestResult = {
+    position: [] as Array<number>,
+    error: Number.MAX_SAFE_INTEGER
+  };
+  for (let i = 0; i < img.length; i++) {
+    const j = Math.round((line[1] * i + line[2]) / (-line[0]));
+    const w2 = getPixelWindow(img, [i, j], w.length);
+    if (w2) {
+      const localError = errorsFunctions[errorFunction](w, w2);
+      if (localError < bestResult.error) {
+        bestResult.error = localError;
+        bestResult.position = [i, j];
+      }
+    }
+  }
+  return bestResult.position;
 };

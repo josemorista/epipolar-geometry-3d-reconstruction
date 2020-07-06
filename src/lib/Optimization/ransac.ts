@@ -1,4 +1,4 @@
-import { getRandomInt } from "./utils";
+import { getRandomInt } from "../utils";
 
 const selectRandomSamples = <T>(samples: Array<T>, numberOfSelect: number) => {
   let selected: Array<T> = [];
