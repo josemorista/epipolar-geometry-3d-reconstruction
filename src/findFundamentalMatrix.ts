@@ -29,7 +29,7 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
   let m = matrix2ndMat(M), sum = 0;
   for (let i = 0; i < m.length; i++) {
     for (let j = 0; j < m[i].length; j++) {
-      sum += Math.pow(m[i][j], 2);
+      sum += (m[i][j] * m[i][j]);
     }
   }
   return sum;
@@ -38,9 +38,9 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
 const img1cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1cv, img2cv, 50);
+const matches = siftMatches(img1cv, img2cv, 1000);
 
-let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.1, 0.95, 10);
+let F = ransac(matches, 9, eightPointAlgorithm, calculateSquareError, 0.00001, 0.95, 10);
 
 const linesOnLeft = computeEpilines(matches.map(el => el.p1), F, true);
 const linesOnRight = computeEpilines(matches.map(el => el.p1), F);
@@ -48,12 +48,12 @@ const linesOnRight = computeEpilines(matches.map(el => el.p1), F);
 drawLines(linesOnRight, img2cv);
 drawLines(linesOnLeft, img1cv);
 
-cv.imshowWait('f1.png', img1cv);
 cv.imshowWait('f2.png', img2cv);
+// cv.imshowWait('f2.png', img2cv);
 
 
 // 3d reconstruction
-const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
+/*const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
 const img1 = img1cvMat.getDataAsArray();
@@ -79,4 +79,4 @@ for (let i = 0; i < img1.length; i++) {
 
 fs.writeFileSync('vertexPoints.txt', JSON.stringify(vertexList));
 
-// const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);
+// const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);*/

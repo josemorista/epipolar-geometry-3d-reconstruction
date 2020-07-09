@@ -37,9 +37,9 @@ const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: numb
 
   for (let i = 0; i < img1.length; i++) {
     for (let j = 0; j < img1[i].length; j++) {
-      const w = getPixelWindow(img1, [i, j], 1);
+      const w = getPixelWindow(img1, [i, j], 4);
       if (w) {
-        const matchPosition = searchMatchInStereoEpiline(img2, w, i, 'SSD');
+        const matchPosition = searchMatchInStereoEpiline(img2, w, i, 'CORRELATION');
         let disp = Math.abs(j - matchPosition[1]);
         if (disp < maxDisparity) {
           if (disp < min) {
