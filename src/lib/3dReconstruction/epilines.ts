@@ -1,9 +1,8 @@
 import { ndMat, IPoint } from "../../@types";
 import Matrix, { SingularValueDecomposition } from "ml-matrix";
-import calculateCorrelation from 'calculate-correlation';
 import * as cv from 'opencv4nodejs';
 
-const exp2 = (x: number) => Math.pow(x, 2);
+const exp2 = (x: number) => x * x;
 
 const SSDError = ([b1, g1, r1]: any, [b2, g2, r2]: any) => {
   return exp2(r2 - r1) + exp2(g2 - g1) + exp2(b2 - b1);
@@ -51,7 +50,7 @@ export const compareWindowsByCorrelation = (w1: ndMat, w2: ndMat) => {
   {
     const w1cv = new cv.Mat(w1, cv.CV_8UC3);
     const corr = w1cv.matchTemplate(new cv.Mat(w2, cv.CV_8UC3), cv.TM_CCOEFF_NORMED);
-    return -1 * Math.abs(corr.at(0, 0));
+    return cv.minMaxLoc(corr).maxVal;
   }
 };
 
@@ -88,7 +87,7 @@ export const searchMatchInEpiline = (img: ndMat, w: ndMat, line: IPoint, errorFu
     const w2 = getPixelWindow(img, [i, j], w.length);
     if (w2) {
       const localError = errorsFunctions[errorFunction](w, w2);
-      if (localError < bestResult.error) {
+      if ((errorFunction === 'CORRELATION' && localError > bestResult.error) || (errorFunction === 'SSD' && localError < bestResult.error)) {
         bestResult.error = localError;
         bestResult.position = [i, j];
       }

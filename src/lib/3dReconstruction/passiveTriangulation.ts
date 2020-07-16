@@ -1,7 +1,6 @@
 import { Matrix, SingularValueDecomposition } from 'ml-matrix';
 import { ndMat, IPoint } from '../../@types';
 
-
 export const passiveTriangulation = (x1: IPoint, x2: IPoint, P1: ndMat, P2: ndMat): IPoint => {
   const [x, y] = x1;
   const [xl, yl] = x2;

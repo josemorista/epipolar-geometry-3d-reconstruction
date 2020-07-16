@@ -25,7 +25,7 @@ export const searchMatchInStereoEpiline = (img: ndMat, w: ndMat, row: number, er
   return bestResult.position;
 };
 
-const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: number) => {
+const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: number, windowSize: number = 3, errorFunction: 'SSD' | 'CORRELATION' = 'SSD') => {
   const img1 = img1cvMat.getDataAsArray();
   const img2 = img2cvMat.getDataAsArray();
   let disparity = matrix2ndMat(Matrix.zeros(img1.length, img1[0].length));
@@ -37,9 +37,9 @@ const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: numb
 
   for (let i = 0; i < img1.length; i++) {
     for (let j = 0; j < img1[i].length; j++) {
-      const w = getPixelWindow(img1, [i, j], 4);
+      const w = getPixelWindow(img1, [i, j], windowSize);
       if (w) {
-        const matchPosition = searchMatchInStereoEpiline(img2, w, i, 'CORRELATION');
+        const matchPosition = searchMatchInStereoEpiline(img2, w, i, errorFunction);
         let disp = Math.abs(j - matchPosition[1]);
         if (disp < maxDisparity) {
           if (disp < min) {

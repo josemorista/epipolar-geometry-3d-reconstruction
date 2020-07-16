@@ -26,6 +26,7 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
   const xTmp = new Matrix([[x], [y], [1]]);
   let xlTmp = new Matrix([[xl, yl, 1]]);
   let M = xlTmp.mmul(new Matrix(F)).mmul(xTmp);
+  // return M.norm("frobenius");
   let m = matrix2ndMat(M), sum = 0;
   for (let i = 0; i < m.length; i++) {
     for (let j = 0; j < m[i].length; j++) {
@@ -38,9 +39,9 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
 const img1cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1cv, img2cv, 1000);
+const matches = siftMatches(img1cv, img2cv, 100);
 
-let F = ransac(matches, 9, eightPointAlgorithm, calculateSquareError, 0.00001, 0.95, 10);
+let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.95, 10);
 
 const linesOnLeft = computeEpilines(matches.map(el => el.p1), F, true);
 const linesOnRight = computeEpilines(matches.map(el => el.p1), F);
@@ -53,7 +54,7 @@ cv.imshowWait('f2.png', img2cv);
 
 
 // 3d reconstruction
-/*const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
+const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
 const img1 = img1cvMat.getDataAsArray();
