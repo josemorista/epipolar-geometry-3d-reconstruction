@@ -1,7 +1,7 @@
 import * as cv from 'opencv4nodejs';
 import { cvMat, IMatchPoint } from '../../@types';
 
-const drawMatches = false;
+const drawMatches = true;
 
 const matchFeatures = (
   img1: cvMat,

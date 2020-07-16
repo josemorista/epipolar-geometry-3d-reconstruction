@@ -39,18 +39,17 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
 const img1cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
 const img2cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
 
-const matches = siftMatches(img1cv, img2cv, 100);
+const matches = siftMatches(img1cv, img2cv, 200);
 
 let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.95, 10);
 
-const linesOnLeft = computeEpilines(matches.map(el => el.p1), F, true);
+const linesOnLeft = computeEpilines(matches.map(el => el.p2), F, true);
 const linesOnRight = computeEpilines(matches.map(el => el.p1), F);
 
 drawLines(linesOnRight, img2cv);
 drawLines(linesOnLeft, img1cv);
 
 cv.imshowWait('f2.png', img2cv);
-// cv.imshowWait('f2.png', img2cv);
 
 
 // 3d reconstruction
@@ -64,7 +63,6 @@ const P1 = readCameraProjectionMatrixFromFile('temple0001.png');
 const P2 = readCameraProjectionMatrixFromFile('temple0002.png');
 
 let vertexList = [];
-
 for (let i = 0; i < img1.length; i++) {
   for (let j = 0; j < img1[i].length; j++) {
     const w = getPixelWindow(img1, [i, j], 3);
@@ -77,7 +75,4 @@ for (let i = 0; i < img1.length; i++) {
   console.log(i);
 }
 
-
 fs.writeFileSync('vertexPoints.txt', JSON.stringify(vertexList));
-
-// const { F: FcvMat } = cv.findFundamentalMat(matches.map(el => new cv.Point2(el.p1.x, el.p1.y)), matches.map(el => new cv.Point2(el.p2.x, el.p2.y)), cv.FM_RANSAC);*/
