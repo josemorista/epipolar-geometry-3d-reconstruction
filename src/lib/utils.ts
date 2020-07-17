@@ -18,12 +18,12 @@ export const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-export const readCameraProjectionMatrixFromFile = (filename: string) => {
-  const fileLines = fs.readFileSync(path.resolve('.', 'datasets', 'temple', 'temple_par.txt'), 'utf-8').split('\n');
+export const readCameraProjectionMatrixFromFile = (pathToParameters: string, filename: string) => {
+  const fileLines = fs.readFileSync(pathToParameters, 'utf-8').split('\n');
   let K = [] as ndMat;
   let R = [] as ndMat;
 
-  fileLines.forEach(line => {
+  fileLines.forEach((line: string) => {
     const parts = line.split(' ');
     if (parts[0] === filename) {
       for (let i = 0; i < 3; i++) {

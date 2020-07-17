@@ -80,7 +80,7 @@ export const searchMatchInEpiline = (img: ndMat, w: ndMat, line: IPoint, errorFu
   };
   let bestResult = {
     position: [] as Array<number>,
-    error: Number.MAX_SAFE_INTEGER
+    error: errorFunction === 'SSD' ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER
   };
   for (let i = 0; i < img.length; i++) {
     const j = Math.round((line[0] * i + line[2]) / (-1 * line[1]));

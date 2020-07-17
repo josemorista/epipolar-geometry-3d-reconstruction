@@ -1,7 +1,7 @@
 import * as cv from 'opencv4nodejs';
 import { cvMat, IMatchPoint } from '../../@types';
 
-const drawMatches = true;
+const drawMatches = false;
 
 const matchFeatures = (
   img1: cvMat,
@@ -56,7 +56,7 @@ export const siftMatches = (img1: cvMat, img2: cvMat, numberOfMatches = 40) => {
   return matchFeatures(
     img1,
     img2,
-    new cv.SIFTDetector({ nFeatures: 2000 }),
+    new cv.SIFTDetector({ nFeatures: numberOfMatches }),
     cv.matchFlannBased,
     numberOfMatches
   );

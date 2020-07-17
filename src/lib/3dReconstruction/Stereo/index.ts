@@ -10,13 +10,13 @@ export const searchMatchInStereoEpiline = (img: ndMat, w: ndMat, row: number, er
   };
   let bestResult = {
     position: [] as Array<number>,
-    error: Number.MAX_SAFE_INTEGER
+    error: errorFunction === 'SSD' ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER
   };
   for (let j = 0; j < img[row].length; j++) {
     const w2 = getPixelWindow(img, [row, j], w.length);
     if (w2) {
       const localError = errorsFunctions[errorFunction](w, w2);
-      if (localError < bestResult.error) {
+      if ((errorFunction === 'CORRELATION' && localError > bestResult.error) || (errorFunction === 'SSD' && localError < bestResult.error)) {
         bestResult.error = localError;
         bestResult.position = [row, j];
       }
@@ -41,7 +41,7 @@ const findDisparityMap = (img1cvMat: cvMat, img2cvMat: cvMat, maxDisparity: numb
       if (w) {
         const matchPosition = searchMatchInStereoEpiline(img2, w, i, errorFunction);
         let disp = Math.abs(j - matchPosition[1]);
-        if (disp < maxDisparity) {
+        if (disp <= maxDisparity) {
           if (disp < min) {
             min = disp;
           }

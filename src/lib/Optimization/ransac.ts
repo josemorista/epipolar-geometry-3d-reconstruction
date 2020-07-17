@@ -5,7 +5,7 @@ const selectRandomSamples = <T>(samples: Array<T>, numberOfSelect: number) => {
   let selectedIndexes: Array<number> = [];
   while (selected.length < numberOfSelect) {
     let i = getRandomInt(0, samples.length - 1);
-    if (!selectedIndexes.includes(i)) {
+    if (!(!!selectedIndexes.find(el => el === i))) {
       selected.push(samples[i]);
       selectedIndexes.push(i);
     }
@@ -23,7 +23,7 @@ export const ransac = <T>(samples: Array<T>, s: number, functionToApply: (s: Arr
   while (iterations > k || k < minIterations) {
     const { selectedSamples, selectedSamplesIndexes } = selectRandomSamples<T>(samples, s);
     let F = functionToApply(selectedSamples);
-    let Snow = samples.filter((el, index) => !selectedSamplesIndexes.includes(index)).filter(sample => {
+    let Snow = samples.filter((el, index) => !(!!selectedSamplesIndexes.find(el => el === index))).filter(sample => {
       return (errorFunction(sample, F) < minError);
     });
     const actualVotes = Snow.length;

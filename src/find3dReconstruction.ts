@@ -11,6 +11,7 @@ import { matrix2ndMat, readCameraProjectionMatrixFromFile } from './lib/utils';
 import { passiveTriangulation } from './lib/3dReconstruction/passiveTriangulation';
 import { computeEpilines, searchMatchInEpiline, getPixelWindow } from './lib/3dReconstruction/epilines';
 
+// Draw epilines for debug purposes
 const drawLines = (lines: Array<IPoint>, img: cvMat) => {
   const c = img.cols;
   for (let i = 0; i < lines.length; i++) {
@@ -21,12 +22,12 @@ const drawLines = (lines: Array<IPoint>, img: cvMat) => {
   }
 };
 
+// Error function to ransac
 const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
   const [x, y] = sample.p1, [xl, yl] = sample.p2;
   const xTmp = new Matrix([[x], [y], [1]]);
   let xlTmp = new Matrix([[xl, yl, 1]]);
   let M = xlTmp.mmul(new Matrix(F)).mmul(xTmp);
-  // return M.norm("frobenius");
   let m = matrix2ndMat(M), sum = 0;
   for (let i = 0; i < m.length; i++) {
     for (let j = 0; j < m[i].length; j++) {
@@ -36,44 +37,82 @@ const calculateSquareError = (sample: IMatchPoint, F: ndMat) => {
   return sum;
 };
 
-const img1cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
-const img2cv = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
+// * Find and draw epilines for two images (Debug purposes)
 
-const matches = siftMatches(img1cv, img2cv, 200);
+// Read the two images
+const img1cv = cv.imread(path.resolve('.', 'datasets', 'dino', 'dino0001.png'));
+const img2cv = cv.imread(path.resolve('.', 'datasets', 'dino', 'dino0002.png'));
 
-let F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.01, 0.95, 10);
+// find matches between the two images
+const customMatches = siftMatches(img1cv, img2cv, 5000);
 
-// const linesOnLeft = computeEpilines(matches.map(el => el.p2), F, true);
-const linesOnRight = computeEpilines(matches.map(el => el.p1), F);
+// Computing fundamental matrix
+let customF = ransac(customMatches, 8, eightPointAlgorithm, calculateSquareError, 0.1, 0.98, 10);
 
+const linesOnLeft = computeEpilines(customMatches.map(el => el.p2), customF, true);
+const linesOnRight = computeEpilines(customMatches.map(el => el.p1), customF);
+
+// Draw lines and show images
+drawLines(linesOnLeft, img1cv);
 drawLines(linesOnRight, img2cv);
-// drawLines(linesOnLeft, img1cv);
 
+cv.imshowWait('f1.png', img1cv);
 cv.imshowWait('f2.png', img2cv);
 
 
-// 3d reconstruction
-const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0001.png'));
-const img2cvMat = cv.imread(path.resolve('.', 'datasets', 'temple', 'temple0002.png'));
+// * 3d reconstruction from multiview
 
-const img1 = img1cvMat.getDataAsArray();
-const img2 = img2cvMat.getDataAsArray();
-
-const P1 = readCameraProjectionMatrixFromFile('temple0001.png');
-const P2 = readCameraProjectionMatrixFromFile('temple0002.png');
-
-let vertexList = [];
-for (let i = 0; i < img1.length; i++) {
-  for (let j = 0; j < img1[i].length; j++) {
-    const w = getPixelWindow(img1, [i, j], 5);
-    if (w) {
-      const epiline = computeEpilines([[i, j]], F)[0];
-      const matchPosition = searchMatchInEpiline(img2, w, epiline, 'SSD');
-      vertexList.push(passiveTriangulation([i, j], matchPosition, P1, P2));
-    }
+const pad = (num: number, size: number = 4) => {
+  let s = `${num}`;
+  while (s.length < size) {
+    s = '0' + s;
   }
+  return s;
+};
+
+let vertexList: ndMat = [];
+for (let i = 1; i < 363; i += 2) {
   console.log(i);
+  const img1cvMat = cv.imread(path.resolve('.', 'datasets', 'dino', `dino${pad(i)}.png`));
+  const img2cvMat = cv.imread(path.resolve('.', 'datasets', 'dino', `dino${pad(i + 1)}.png`));
+
+  // Convert to ndMat
+  const img2 = img2cvMat.getDataAsArray();
+  const img1 = img1cvMat.getDataAsArray();
+
+  // Read the projections matrices
+  const P1 = readCameraProjectionMatrixFromFile(path.resolve('.', 'datasets', 'dino', 'dino_par.txt'), `dino${pad(i)}.png`);
+  const P2 = readCameraProjectionMatrixFromFile(path.resolve('.', 'datasets', 'dino', 'dino_par.txt'), `dino${pad(i + 1)}.png`);
+
+  const matches = siftMatches(img1cvMat, img2cvMat, 5000);
+  const F = ransac(matches, 8, eightPointAlgorithm, calculateSquareError, 0.1, 0.98, 10);
+
+  // Recover depth for sift matches
+  matches.forEach(match => {
+    const pt = [Math.round(match.p1[0]), Math.round(match.p1[1])];
+    const w = getPixelWindow(img1, pt, 1);
+    if (w) {
+      const epiline = computeEpilines([pt], F)[0];
+      const matchPosition = searchMatchInEpiline(img2, w, epiline, 'SSD');
+      vertexList.push(passiveTriangulation(pt, matchPosition, P1, P2));
+    }
+  });
+
+  // Recover depth by passive triangulation for all pixels
+  /*for (let i = 0; i < img1.length; i++) {
+    for (let j = 0; j < img1[i].length; j++) {
+      const w = getPixelWindow(img1, [i, j], 5);
+      if (w) {
+        const epiline = computeEpilines([[i, j]], F)[0];
+        const matchPosition = searchMatchInEpiline(img2, w, epiline, 'SSD');
+        vertexList.push(passiveTriangulation([i, j], matchPosition, P1, P2));
+      }
+    }
+    console.log(i);
+  }*/
+
 }
 
-// fs.writeFileSync('vertexPoints.txt', JSON.stringify(normalizeVertexList(vertexList)));
 fs.writeFileSync('vertexPoints.txt', JSON.stringify(vertexList));
+// fs.writeFileSync('vertexPoints.txt', JSON.stringify(normalizeVertexList(vertexList))); // Normalized vertex list
+
