@@ -83,7 +83,7 @@ export const searchMatchInEpiline = (img: ndMat, w: ndMat, line: IPoint, errorFu
     error: Number.MAX_SAFE_INTEGER
   };
   for (let i = 0; i < img.length; i++) {
-    const j = Math.round((line[1] * i + line[2]) / (-line[0]));
+    const j = Math.round((line[0] * i + line[2]) / (-1 * line[1]));
     const w2 = getPixelWindow(img, [i, j], w.length);
     if (w2) {
       const localError = errorsFunctions[errorFunction](w, w2);

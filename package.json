@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx ts-node-dev --ignore-watch node_modules src/index.ts",
     "find-stereo-disparity-map": "npx ts-node src/findStereoDisparityMap.ts",
-    "find-fundamental-matrix": "npx ts-node src/findFundamentalMatrix.ts",
+    "find-3d-reconstruction": "npx ts-node src/find3dReconstruction.ts",
     "build": "npx tsc",
     "commit": "git add * && git-cz && git push -u origin master"
   },
